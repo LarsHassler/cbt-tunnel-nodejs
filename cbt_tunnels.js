@@ -157,6 +157,13 @@ function cbtSocket(params) {
 
         conn.on('reconnect',function(){
             warn('Reconnected!');
+            ping = setInterval(function(){
+                if(params.verbose){
+                    console.log('Emitting ping.');
+                }
+                //socket.io is bad people            
+                conn.emit('pingcheck');
+            },10000);
         });
 
         conn.on("error", function(e){
@@ -166,6 +173,7 @@ function cbtSocket(params) {
 
         conn.on("disconnect", function(data){
             reconnecting = true;
+            clearInterval(ping);
             if(!params.verbose){
                 clearInterval(self.drawTimeout);
                 self.spin(null,'Disconnected from CBT server — if this persists, please exit this client and try again.\n');
@@ -214,6 +222,13 @@ function cbtSocket(params) {
                     }
                 }
             })
+        })
+
+        conn.on('legitdead',function(){
+            if(params.verbose){
+                console.log('Received kill signal from server.');
+            }
+            self.endWrap();
         })
 
         conn.on("data", function(data,fn){

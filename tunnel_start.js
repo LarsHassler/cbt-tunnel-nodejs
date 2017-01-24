@@ -41,7 +41,7 @@ var cmdParse = function(cb){
                 console.log('Got user account info!');
                 var params = {
                     urls: cbtUrls,
-                    verbose: argv.v,
+                    verbose: argv.verbose,
                     username: argv.username,
                     authkey: data.auth_key, 
                     tType:tType,
@@ -322,5 +322,7 @@ module.exports = {
 }
 
 module.exports.start(function(err){
-    console.error(err);
+    if(err){
+        console.error(err);
+    }
 })
