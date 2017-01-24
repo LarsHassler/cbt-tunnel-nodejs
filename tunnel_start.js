@@ -1,7 +1,25 @@
+#!/usr/bin/env node
 var _ = require('lodash'),
     request = require('request'),
     cbtSocket = (require('./cbt_tunnels')),
-    argv = require('yargs').argv,
+    argv = require('yargs',{})
+        .option('httpProxy',{})
+        .option('ready',{})
+        .option('username',{demand:true})
+        .option('authkey',{demand:true})
+        .option('simpleproxy',{})
+        .option('tunnel',{})
+        .option('webserver',{})
+        .option('cmd',{default:true,type:'boolean'})
+        .option('proxyIp',{})
+        .option('proxyPort',{})
+        .option('port',{})
+        .option('dir',{})
+        .option('verbose',{})
+        .option('kill',{})
+        .option('test',{})
+        .option('tunnelname',{})
+        .argv,
     fs = require('fs'),
     gfx = require('./gfx.js'),
     cbts = null,
@@ -12,10 +30,7 @@ var _ = require('lodash'),
         node: "crossbrowsertesting.com"
     },
     tType,
-    cmd = false,
-    valid = ['httpProxy','_','ready','username','authkey','$0','simpleproxy','tunnel','webserver','cmd','proxyIp','proxyPort','port','dir','v','kill','test','tunnelname'];
-
-
+    cmd = false;
 
 var cmdParse = function(cb){
     cbtUrls = ((argv.test) ? {server: "test.crossbrowsertesting.com", node: "testapp.crossbrowsertesting.com"} : {server: "crossbrowsertesting.com", node: "crossbrowsertesting.com"});
@@ -240,56 +255,48 @@ var startTunnel = function(params){
 }
 
 module.exports = {
-    start: function(params,cb){
-        var u = _.union(_.keys(params),valid);
-        var v = _.isEqual(u.sort(),valid.sort());
-        if(!v){
-            help();
-            warn("I can't make sense of some of the flags you've provided, like: \n    "+_.difference(u.sort(),valid.sort())+"\n");
-            process.exit(1);
-        }
-        if(params.cmd){
+    start: function(cb){
+        if(argv.cmd){
             cmd = true;
         }
-        if(params.httpProxy){
-            process.env.http_proxy = params.httpProxy;
+        if(argv.httpProxy){
+            process.env.http_proxy = argv.httpProxy;
         }
-        if(!params.tunnelname){
-            params.tunnelName = null;
+        if(!argv.tunnelname){
+            argv.tunnelName = null;
         }
-        if(params.dir){
-            if((_.isNull(params.proxyIp)||_.isUndefined(params.proxyIp))&&(_.isNull(params.proxyPort)||_.isUndefined(params.proxyPort))){
+        if(argv.dir){
+            if((_.isNull(argv.proxyIp)||_.isUndefined(argv.proxyIp))&&(_.isNull(argv.proxyPort)||_.isUndefined(argv.proxyPort))){
                 argv.tType = 'webserver';
             }else{
                 help();
                 warn("Arguments for both hosting local files and acting as a proxy server are provided; only one tunnel type may be specified.");
                 process.exit(1);
             }
-        }else if(!_.isUndefined(params.proxyIp)&&!_.isNull(params.proxyIp)&&!_.isUndefined(params.proxyPort)&&!_.isNull(params.proxyPort)){
-            if(!params.dir&&!params.port){
+        }else if(!_.isUndefined(argv.proxyIp)&&!_.isNull(argv.proxyIp)&&!_.isUndefined(argv.proxyPort)&&!_.isNull(argv.proxyPort)){
+            if(!argv.dir&&!argv.port){
                 argv.tType = 'tunnel';
             }else{
                 help();
                 warn("Arguments for both hosting local files and acting as a proxy server are provided; only one tunnel type may be specified.");
                 process.exit(1);
             }
-        }else if((!_.isUndefined(params.proxyIp)&&!_.isNull(params.proxyIp))||(!_.isUndefined(params.proxyPort)&&!_.isNull(params.proxyPort))){
+        }else if((!_.isUndefined(argv.proxyIp)&&!_.isNull(argv.proxyIp))||(!_.isUndefined(argv.proxyPort)&&!_.isNull(argv.proxyPort))){
             help();
             warn("Starting a proxy server tunnel requires both a proxyIp and a proxyPort");
             process.exit(1);
         }else{
             argv.tType = 'simpleproxy';
         }
-        if((_.isUndefined(params.username)) || (_.isNull(params.username))){
+        if((_.isUndefined(argv.username)) || (_.isNull(argv.username))){
             help();
             warn('You must specify a username.\n');
             process.exit(1);
-        }else if((_.isUndefined(params.authkey)) || _.isNull(params.authkey)){
+        }else if((_.isUndefined(argv.authkey)) || _.isNull(argv.authkey)){
             help();
             warn('You must specifiy an authkey.\n');
             process.exit(1);
         }
-        _.merge(argv,params);
         cmdParse(function(err){
             if(!err){
                 cb(null);
@@ -314,3 +321,6 @@ module.exports = {
     }
 }
 
+module.exports.start(function(err){
+    console.error(err);
+})

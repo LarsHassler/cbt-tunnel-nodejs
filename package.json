@@ -14,7 +14,10 @@
     "yargs": "^3.30.0",
     "https-proxy-agent": "^1.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "electron": "^1.4.15",
+    "electron-rebuild": "^1.5.7"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -32,9 +35,9 @@
   "author": "Warner Johnson : CrossBrowserTesting.com <warner@crossbrowsertesting.com> (https://github.com/crossbrowsertesting/)",
   "preferGlobal": true,
   "bin": {
-    "cbt_tunnels": "cmd_start.js"
+    "cbt_tunnels": "tunnel_start.js"
   },
-  "main":"tunnel_start.js",
+  "main": "tunnel_start.js",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/crossbrowsertesting/cbt_tunnels/issues"
