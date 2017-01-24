@@ -176,9 +176,9 @@ function cbtSocket(params) {
             clearInterval(ping);
             if(!params.verbose){
                 clearInterval(self.drawTimeout);
-                self.spin(null,'Disconnected from CBT server — if this persists, please exit this client and try again.\n');
+                self.spin(null,'Disconnected from CBT server\n');
             }else{
-                warn('Disconnected from CBT server — if this persists, please exit this client and try again.\n');
+                warn('Disconnected from CBT server\n');
             }
             connection_list = {};
         });
