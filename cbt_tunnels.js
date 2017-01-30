@@ -225,9 +225,7 @@ function cbtSocket(params) {
         })
 
         conn.on('legitdead',function(){
-            if(params.verbose){
-                console.log('Received kill signal from server.');
-            }
+            warn('User requested ending this tunnel.');
             self.endWrap();
         })
 
