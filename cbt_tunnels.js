@@ -74,6 +74,7 @@ function cbtSocket(api, params) {
 	self.path = '/wsstunnel' + self.qPort + '/socket.io';
 	self.query = 'userid=' + self.userId + '&authkey=' + self.authkey;
 	self.tunnelapi = params.urls.node+'/api/v3/tunnels/'+params.tid;
+	self.endCallbackFunction = params.endCallbackFunction;
 	var proxyAuthString = self.proxyAuthString = '';
 	if(!!params.proxyUser && !!params.proxyPass){
 		proxyAuthString = self.proxyAuthString = 'Proxy-Authorization: Basic ' + (new Buffer(params.proxyUser + ':' + params.proxyPass)).toString('base64');
@@ -481,27 +482,31 @@ function cbtSocket(api, params) {
 			fs.unlink(self.ready, function(err){
 				if(err){
 					console.log(err);
-					setTimeout(function(){
-						process.exit(1);
-					},10000);
+					if (self.endCallbackFunction) {
+            self.endCallbackFunction();
+					} else {
+            setTimeout(function(){
+              process.exit(1);
+            },10000);
+					}
 				} 
 			})
 		}
 	}
 
-	self.endWrap = function(cb){
+	self.endWrap = function(){
 		self.end(function(err, killit){
 			if(!err && killit === 'killit'){
 				console.log('Bye!');
-				if (cb) {
-					cb();
+				if (self.endCallbackFunction) {
+          self.endCallbackFunction();
 				} else {
           process.exit(0);
 				}
 			}else if(err){
 				console.log(err);
-        if (cb) {
-          cb(err);
+        if (self.endCallbackFunction) {
+          self.endCallbackFunction(err);
         } else {
           setTimeout(function() {
 						process.exit(1);

@@ -187,7 +187,8 @@ module.exports = {
 				tunnelName: cmdArgs.tunnelname,
 				cmd: !!cmdArgs.cmd,
 				ready: !!cmdArgs.ready,
-				secret: cmdArgs.secret
+				secret: cmdArgs.secret,
+				endCallbackFunction: cmdArgs.endCallbackFunction
 			}
 
 			// This api call just to make sure the credentials are valid.
@@ -215,9 +216,9 @@ module.exports = {
 			return cb(err)
 		}
 	},
-	stop: function(cb){
+	stop: function(){
 		if(!_.isNull(cbts)){
-			cbts.endWrap(cb);
+			cbts.endWrap();
 		}else{
 			warn('You must start the tunnel first by calling the function "start" with the relevant parameters.');
 		}
