@@ -489,16 +489,24 @@ function cbtSocket(api, params) {
 		}
 	}
 
-	self.endWrap = function(){
+	self.endWrap = function(cb){
 		self.end(function(err, killit){
 			if(!err && killit === 'killit'){
 				console.log('Bye!');
-				process.exit(0);
+				if (cb) {
+					cb();
+				} else {
+          process.exit(0);
+				}
 			}else if(err){
 				console.log(err);
-				setTimeout(function(){
-					process.exit(1);
-				}, 10000);
+        if (cb) {
+          cb(err);
+        } else {
+          setTimeout(function() {
+						process.exit(1);
+					}, 10000);
+        }
 			}
 		});
 	}

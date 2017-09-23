@@ -215,9 +215,9 @@ module.exports = {
 			return cb(err)
 		}
 	},
-	stop: function(){
+	stop: function(cb){
 		if(!_.isNull(cbts)){
-			cbts.endWrap();
+			cbts.endWrap(cb);
 		}else{
 			warn('You must start the tunnel first by calling the function "start" with the relevant parameters.');
 		}
