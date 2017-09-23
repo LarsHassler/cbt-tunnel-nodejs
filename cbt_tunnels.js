@@ -494,19 +494,29 @@ function cbtSocket(api, params) {
 		}
 	}
 
-	self.endWrap = function(){
+	self.endWrap = function(cb){
 		self.end(function(err, killit){
 			if(!err && killit === 'killit'){
 				console.log('Bye!');
-				if (self.endCallbackFunction) {
-          self.endCallbackFunction();
+				if (self.endCallbackFunction || cb) {
+					if (cb) {
+            cb();
+					}
+					if (self.endCallbackFunction) {
+            self.endCallbackFunction();
+					}
 				} else {
           process.exit(0);
 				}
-			}else if(err){
+			} else if(err){
 				console.log(err);
-        if (self.endCallbackFunction) {
-          self.endCallbackFunction(err);
+        if (self.endCallbackFunction || cb) {
+          if (cb) {
+            cb();
+          }
+          if (self.endCallbackFunction) {
+            self.endCallbackFunction();
+          }
         } else {
           setTimeout(function() {
 						process.exit(1);
