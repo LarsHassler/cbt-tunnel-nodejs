@@ -48,13 +48,13 @@ function cbtSocket(api, params) {
 				self.startStaticServer(attempt+1);
 			}else if(attempt>=9){
 				warn('Tried serving local directory on ports 8080-8089--all appear to be in use. Please specify a custom port using the --port flag.');
-				self.endWrap();
+				self.endWrap(null, new Error("PORTS 8080-8089 IN USE"));
 			}else if(params.port){
 				warn(params.port+' in use. Please choose a different port.');
-				self.endWrap();
+        self.endWrap(null, new Error("PORT IN USE"));
 			}else{
 				warn('Error starting webserver.');
-				self.endWrap();
+        self.endWrap(null, new Error("Error while starting webserver"));
 			}
 		});
 		self.server.on('listening',function(){
@@ -74,7 +74,7 @@ function cbtSocket(api, params) {
 	self.path = '/wsstunnel' + self.qPort + '/socket.io';
 	self.query = 'userid=' + self.userId + '&authkey=' + self.authkey;
 	self.tunnelapi = params.urls.node+'/api/v3/tunnels/'+params.tid;
-	self.endCallbackFunction = params.endCallbackFunction;
+	self.errorCallbackFunction = params.errorCallbackFunction;
 	var proxyAuthString = self.proxyAuthString = '';
 	if(!!params.proxyUser && !!params.proxyPass){
 		proxyAuthString = self.proxyAuthString = 'Proxy-Authorization: Basic ' + (new Buffer(params.proxyUser + ':' + params.proxyPass)).toString('base64');
@@ -131,7 +131,7 @@ function cbtSocket(api, params) {
 			reconnectAttempts++;
 			if(reconnectAttempts>=5){
 				warn('Could not reconnect to CBT server.');
-				self.endWrap();
+        self.endWrap(null, new Error('Could not reconnect to CBT server.'));
 			}
 		});
 
@@ -211,7 +211,7 @@ function cbtSocket(api, params) {
 			var checkResult = utils.checkVersion(data,params);
 			sendLog(checkResult);
 			if(checkResult.includes('dead')){
-				self.endWrap();
+        self.endWrap(null, new Error('dead version'));
 			}
 		});
 
@@ -244,7 +244,7 @@ function cbtSocket(api, params) {
 		conn.on('legitdead',function(){
 			warn('User requested ending this tunnel.');
 			sendLog('user requested ending this tunnel via UI.');
-			self.endWrap();
+      self.endWrap(null, new Error('user requested ending this tunnel via UI.'));
 		});
 
 		conn.on('data', function(data,fn){
@@ -482,8 +482,8 @@ function cbtSocket(api, params) {
 			fs.unlink(self.ready, function(err){
 				if(err){
 					console.log(err);
-					if (self.endCallbackFunction) {
-            self.endCallbackFunction();
+					if (self.errorCallbackFunction) {
+            self.errorCallbackFunction();
 					} else {
             setTimeout(function(){
               process.exit(1);
@@ -494,29 +494,22 @@ function cbtSocket(api, params) {
 		}
 	}
 
-	self.endWrap = function(cb){
+	self.endWrap = function(cb, error){
 		self.end(function(err, killit){
+      if (error && self.errorCallbackFunction) {
+        self.errorCallbackFunction(error);
+      }
 			if(!err && killit === 'killit'){
 				console.log('Bye!');
-				if (self.endCallbackFunction || cb) {
-					if (cb) {
-            cb();
-					}
-					if (self.endCallbackFunction) {
-            self.endCallbackFunction();
-					}
+				if (cb) {
+					cb();
 				} else {
           process.exit(0);
 				}
 			} else if(err){
 				console.log(err);
-        if (self.endCallbackFunction || cb) {
-          if (cb) {
-            cb();
-          }
-          if (self.endCallbackFunction) {
-            self.endCallbackFunction();
-          }
+				if (cb) {
+					cb();
         } else {
           setTimeout(function() {
 						process.exit(1);
