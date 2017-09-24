@@ -10,7 +10,7 @@ var _ = require('lodash'),
 	help = gfx.help,
 	validParameters = ['quiet', 'proxyUser', 'proxyPass', 'httpsProxy', 'httpProxy', '_', 'ready',
 		'username', 'authkey', '$0', 'simpleproxy', 'tunnel', 'webserver', 'cmd', 'proxyIp',
-		'proxyPort', 'port', 'dir', 'verbose', 'kill', 'test', 'tunnelname', 'secret'];
+		'proxyPort', 'port', 'dir', 'verbose', 'kill', 'test', 'tunnelname', 'secret', 'errorCallbackFunction'];
 
 var validateArgs = function(cmdArgs){
 	// make sure that user has provided username/authkey and no extraneous options
@@ -188,7 +188,7 @@ module.exports = {
 				cmd: !!cmdArgs.cmd,
 				ready: !!cmdArgs.ready,
 				secret: cmdArgs.secret,
-				endCallbackFunction: cmdArgs.endCallbackFunction
+        errorCallbackFunction: cmdArgs.errorCallbackFunction
 			}
 
 			// This api call just to make sure the credentials are valid.

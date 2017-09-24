@@ -482,14 +482,10 @@ function cbtSocket(api, params) {
 			fs.unlink(self.ready, function(err){
 				if(err){
 					console.log(err);
-					if (self.errorCallbackFunction) {
-            self.errorCallbackFunction();
-					} else {
-            setTimeout(function(){
-              process.exit(1);
-            },10000);
-					}
-				} 
+					setTimeout(function(){
+						process.exit(1);
+					},10000);
+				}
 			})
 		}
 	}
